@@ -1,0 +1,12 @@
+float64[] location_xy_pix
+bool elongated
+float64 width_pix
+float64 width_m
+float64[4] aperture_axis_pix
+float64[4] long_axis_pix
+float64 location_above_surface_m
+float64 location_z_pix
+float64 object_max_height_above_surface_m
+Bool2DArray surface_convex_hull_mask
+Bool2DArray object_selector
+object_ellipse_msg object_ellipse

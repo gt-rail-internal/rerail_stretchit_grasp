@@ -1,0 +1,47 @@
+location_xy_pix -> <class 'tuple'> :
+ (165.36531365313652, 76.01845018450184)
+
+elongated -> <class 'bool'> :
+ True
+
+width_pix -> <class 'float'> :
+ 17.683757210817493
+
+width_m -> <class 'float'> :
+ 0.10610254326490497
+
+aperture_axis_pix -> <class 'tuple'> :
+ ((174.19252629251747, 75.50939783754887), (156.53810101375558, 76.52750253145481))
+
+long_axis_pix -> <class 'tuple'> :
+ ((166.4233995607191, 94.36616894637339), (164.30722774555394, 57.6707314226303))
+
+location_above_surface_m -> <class 'numpy.float64'> :
+ 0.045209587772116686
+
+location_z_pix -> <class 'numpy.float64'> :
+ 103.89934077079107
+
+object_max_height_above_surface_m -> <class 'numpy.float64'> :
+ 0.13244094488188968
+
+surface_convex_hull_mask -> <class 'numpy.ndarray'> :
+ [[False False False ... False False False]
+ [False False False ... False False False]
+ [False False False ... False False False]
+ ...
+ [False False False ... False False False]
+ [False False False ... False False False]
+ [False False False ... False False False]]
+
+object_selector -> <class 'numpy.ndarray'> :
+ [[False False False ... False False False]
+ [False False False ... False False False]
+ [False False False ... False False False]
+ ...
+ [False False False ... False False False]
+ [False False False ... False False False]
+ [False False False ... False False False]]
+
+object_ellipse -> <class 'dict'> :
+ {'centroid': (165.36531365313652, 76.01845018450184), 'minor': {'axis': ((174.19252629251747, 75.50939783754887), (156.53810101375558, 76.52750253145481)), 'length': 17.683757210817493}, 'major': {'axis': ((166.4233995607191, 94.36616894637339), (164.30722774555394, 57.6707314226303)), 'length': 36.75640513176216, 'ang_rad': -1.513191601545465}}
