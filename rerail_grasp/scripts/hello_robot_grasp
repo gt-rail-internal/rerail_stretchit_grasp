@@ -27,9 +27,13 @@ import hello_helpers.hello_misc as hm
 import stretch_funmap.navigate as nv
 import stretch_funmap.manipulation_planning as mp
 
+import pickle as pkl
+
 
 ### Rail imports
-from rerail_grasp.msg import grasp_target_msg, Bool2DArray, Bool1DArray
+from rerail_grasp.msg import grasp_target_msg, Bool2DArray, Bool1DArray, object_ellipse_msg
+from rerail_grasp.srv import grasp_manip,grasp_manipResponse
+from util import grasp_target_bridge
 
 
 class GraspSuggestNode(hm.HelloNode):
@@ -45,6 +49,9 @@ class GraspSuggestNode(hm.HelloNode):
         self.lift_position = None
         self.manipulation_view = None
         self.debug_directory = None
+
+        # Rail code
+        self.grasp_msg_bridge = grasp_target_bridge()
 
     def joint_states_callback(self, joint_states):
         with self.joint_states_lock: 
@@ -90,24 +97,55 @@ class GraspSuggestNode(hm.HelloNode):
         else:
             at_goal = self.move_base.backward(forward_m, detect_obstacles=False, tolerance_distance_m=tolerance_distance_m)
 
-    def flatten_2d_array(self,array):
-        # RAIL code
-        flattened_array = []
-        for row in array:
-            for el in row:
-                flattened_array.append(el)
-        return(flattened_array)
+    # def flatten_2d_array(self,array):
+    #     # RAIL code
+    #     flattened_array = []
+    #     for row in array:
+    #         for el in row:
+    #             flattened_array.append(el)
+    #     return(flattened_array)
 
-    def get_Bool2DArray(self,bool_array):
-        array_Bool1DArray = []
-        for row in bool_array:
-            msg_1d = Bool1DArray()
-            msg_1d.data_1d = row
-            array_Bool1DArray.append(msg_1d)
-        msg_2d = Bool2DArray()
-        print("OK "*50)
-        msg_2d.data_2d = array_Bool1DArray
-        return(msg_2d)
+    # def unflatten_2d_array(self,flattened_array,shape=(2,2)):
+    #     # RAIL code
+    #     array = []
+    #     for i in range(shape[0]):
+    #         row = []
+    #         for j in range(shape[1]):
+    #             row.append(flattened_array[i*shape[1]+j])
+    #         array.append(tuple(row))
+    #     return(tuple(array))
+
+    # def get_Bool2DArray(self,bool_array):
+    #     array_Bool1DArray = []
+    #     for row in bool_array:
+    #         msg_1d = Bool1DArray()
+    #         msg_1d.data_1d = row
+    #         array_Bool1DArray.append(msg_1d)
+    #     msg_2d = Bool2DArray()
+    #     print("OK "*50)
+    #     msg_2d.data_2d = array_Bool1DArray
+    #     return(msg_2d)
+    
+    # def get_inv_Bool2DArray(self,msg_2d):
+    #     array_bool = []
+    #     for row in msg_2d.data_2d:
+    #         array_bool.append(row.data_1d)
+    #     return(np.array(array_bool))
+
+    # def get_ellipse_msg(self,ellipse):
+    #     ellipse_msg = object_ellipse_msg()
+    #     ellipse_msg.centroid = ellipse['centroid']
+    #     ellipse_msg.minor_axis = ellipse['minor']['axis']
+    #     ellipse_msg.minor_length = ellipse['minor']['length']
+    #     ellipse_msg.major_axis = ellipse['major']['axis']
+    #     ellipse_msg.major_length = ellipse['major']['length']
+    #     ellipse_msg.ang_rad = ellipse['ang_rad']
+    #     return(ellipse_msg)
+
+    def save_variable_to_file(self,variable,file_name):
+        print("Saving variable to file: ",file_name)
+        with open(file_name, 'wb') as f:
+            pkl.dump(variable, f)
 
     def trigger_grasp_object_callback(self, request):
         max_lift_m = 1.09
@@ -128,83 +166,25 @@ class GraspSuggestNode(hm.HelloNode):
         # 2. Scan surface and find grasp target
         self.look_at_surface(scan_time_s = 4.0)
         grasp_target = self.manipulation_view.get_grasp_target(self.tf2_buffer)
+        # print("#"*50)
+        # self.save_variable_to_file(grasp_target,'/home/hello-robot/grasp_target.pkl')
+        # print("^"*50)
         if(not grasp_target is None):
-            print("#"*50)
-            print(grasp_target)
-            print("-"*50)
-            for key in grasp_target.keys():
-                print(key,'->', type(grasp_target[key]) ,':\n',grasp_target[key])
-                print()
-            print("#"*50)
-            print('surface_convex_hull_mask shape: ',grasp_target['surface_convex_hull_mask'].shape)
-            print('object_selector shape: ',grasp_target['object_selector'].shape)
-        
-
-            #### RAIL code
-            # flattening arrays
-            aperture_axis_pix_flattened = self.flatten_2d_array(grasp_target['aperture_axis_pix'])
-            long_axis_pix_flattened = self.flatten_2d_array(grasp_target['long_axis_pix'])
-
-
-            grasp_target_ros_msg = grasp_target_msg()
-            grasp_target_ros_msg.location_xy_pix = grasp_target['location_xy_pix']
-            grasp_target_ros_msg.elongated = grasp_target['elongated']
-            grasp_target_ros_msg.width_pix = grasp_target['width_pix']
-            grasp_target_ros_msg.width_m = grasp_target['width_m']
-        
-            grasp_target_ros_msg.aperture_axis_pix = aperture_axis_pix_flattened
-            grasp_target_ros_msg.long_axis_pix = long_axis_pix_flattened
-            grasp_target_ros_msg.location_above_surface_m = grasp_target['location_above_surface_m']
-            grasp_target_ros_msg.location_z_pix = grasp_target['location_z_pix']
-            grasp_target_ros_msg.object_max_height_above_surface_m = grasp_target['object_max_height_above_surface_m']
-            
-            grasp_target_ros_msg.surface_convex_hull_mask = self.get_Bool2DArray(grasp_target['surface_convex_hull_mask'])
-            grasp_target_ros_msg.object_selector = self.get_Bool2DArray(grasp_target['object_selector'])
-
+            pass
+            rospy.loginfo("Calling manipulation service")
+            grasp_target_ros_msg = self.grasp_msg_bridge.to_ros_msg(grasp_target)
             self.grasp_target_publisher.publish(grasp_target_ros_msg)
+            response = self.manip_service(grasp_target_ros_msg)
+            rospy.loginfo("Manipulation service response: {}".format(response))
         else:
             rospy.logwarn("Object not found!!!")
+        # grasp_target_ros_msg = grasp_target_msg()
+        # response = self.manip_service(grasp_target_ros_msg)
 
         
         
 
-        # float64 width_pix
-        # float64 width_m
-        # float64[4] aperture_axis_pix
-        # float64[4] long_axis_pix
-        # float64 location_above_surface_m
-        # float64 location_z_pix
-        # float64 object_max_height_above_surface_m
-        # Bool2DArray surface_convex_hull_mask
-        # Bool2DArray object_selector
-        # object_ellipse_msg object_ellipse
-
-
-        # width_pix -> <class 'float'> :
-        # 17.683757210817493
-
-        # width_m -> <class 'float'> :
-        # 0.10610254326490497
-
-        # aperture_axis_pix -> <class 'tuple'> :
-        # ((174.19252629251747, 75.50939783754887), (156.53810101375558, 76.52750253145481))
-
-        # long_axis_pix -> <class 'tuple'> :
-        # ((166.4233995607191, 94.36616894637339), (164.30722774555394, 57.6707314226303))
-
-        # location_above_surface_m -> <class 'numpy.float64'> :
-        # 0.045209587772116686
-
-        # location_z_pix -> <class 'numpy.float64'> :
-        # 103.89934077079107
-
-        # object_max_height_above_surface_m -> <class 'numpy.float64'> :
-        # 0.13244094488188968
-
-        
-        # call manip service
-
-        #########################################################################
+       
         
         
         if grasp_target is None:
@@ -212,8 +192,13 @@ class GraspSuggestNode(hm.HelloNode):
                 success=False,
                 message='Failed to find grasp target'
             )
+        
+        # grasp_target = self.grasp_msg_bridge.from_ros_msg(grasp_target_ros_msg)
 
-        # # 3. Move to pregrasp pose
+        # 3. Move to pregrasp pose
+        # print("$"*50)
+        # # self.manipulation_view = mp.ManipulationView(self.tf2_buffer, self.debug_directory, self.get_tool())
+        # self.look_at_surface(scan_time_s = 4.0)
         # pregrasp_lift_m = self.manipulation_view.get_pregrasp_lift(grasp_target, self.tf2_buffer)
         # if self.tool == "tool_stretch_dex_wrist":
         #     pregrasp_lift_m += 0.02
@@ -343,6 +328,9 @@ class GraspSuggestNode(hm.HelloNode):
         rospy.loginfo('Node ' + self.node_name + ' connected to'  + high_accuracy_service)
         self.trigger_d435i_high_accuracy_mode_service = rospy.ServiceProxy(high_accuracy_service, Trigger)
         
+        manip_service_name = '/grasp_object/manip_grasp_object'
+        self.manip_service = rospy.ServiceProxy(manip_service_name, grasp_manip)
+        # rospy.wait_for_service(manip_service_name)
         rate = rospy.Rate(self.rate)
         while not rospy.is_shutdown():
             rate.sleep()

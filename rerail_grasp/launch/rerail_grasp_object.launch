@@ -17,12 +17,16 @@
   <!-- ALIGNED GRIPPER LINK -->
   <node name="aligned_gripper_link_tf_publisher" pkg="tf" type="static_transform_publisher" args="0 0 0 -0.5 0.4999968 0.5 0.5000032 /link_straight_gripper /link_straight_gripper_aligned 100" />
 
-  <!-- GRASP OBJECT -->
+  <!-- GRASP OBJECT SUGGESTION-->
   <node name="hello_robot_grasp" pkg="rerail_grasp" type="hello_robot_grasp" output="screen">
     <param name="debug_directory" type="string" value="$(arg debug_directory)"/>
     <param name="dryrun" type="bool" value="$(arg dryrun)"/>
   </node>
-
+  <!-- GRASP OBJECT MANIPULATION -->
+  <node name="hello_robot_manip" pkg="rerail_grasp" type="hello_robot_manip" output="screen">
+    <param name="debug_directory" type="string" value="$(arg debug_directory)"/>
+    <param name="dryrun" type="bool" value="$(arg dryrun)"/>
+  </node>
   <!-- KEYBOARD TELEOP -->
   <node name="keyboard_teleop" pkg="stretch_core" type="keyboard_teleop" output="screen" args='--mapping_on --grasp_object_on'/>
   <!-- -->

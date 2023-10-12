@@ -28,7 +28,12 @@ import stretch_funmap.navigate as nv
 import stretch_funmap.manipulation_planning as mp
 
 
-class GraspObjectNode(hm.HelloNode):
+### Rail imports
+from rerail_grasp.msg import grasp_target_msg, Bool2DArray, Bool1DArray, object_ellipse_msg
+from rerail_grasp.srv import grasp_manip,grasp_manipResponse
+from util import grasp_target_bridge
+
+class GraspObjectManipNode(hm.HelloNode):
 
     def __init__(self):
         hm.HelloNode.__init__(self)
@@ -41,6 +46,7 @@ class GraspObjectNode(hm.HelloNode):
         self.lift_position = None
         self.manipulation_view = None
         self.debug_directory = None
+        self.grasp_msg_bridge = grasp_target_bridge()
 
     def joint_states_callback(self, joint_states):
         with self.joint_states_lock: 
@@ -91,27 +97,31 @@ class GraspObjectNode(hm.HelloNode):
         min_extension_m = 0.01
         max_extension_m = 0.5
 
-        # 1. Initial configuration
-        use_default_mode = False
-        if use_default_mode:
-            # Set the D435i to Default mode for obstacle detection
-            trigger_request = TriggerRequest()
-            trigger_result = self.trigger_d435i_default_mode_service(trigger_request)
-            rospy.loginfo('trigger_result = {0}'.format(trigger_result))
+        # # 1. Initial configuration
+        # use_default_mode = False
+        # if use_default_mode:
+        #     # Set the D435i to Default mode for obstacle detection
+        #     trigger_request = TriggerRequest()
+        #     trigger_result = self.trigger_d435i_default_mode_service(trigger_request)
+        #     rospy.loginfo('trigger_result = {0}'.format(trigger_result))
 
-        rospy.loginfo('Stow the arm.')
-        self.stow_the_robot()
+        # rospy.loginfo('Stow the arm.')
+        # self.stow_the_robot()
 
-        # 2. Scan surface and find grasp target
-        self.look_at_surface(scan_time_s = 4.0)
-        grasp_target = self.manipulation_view.get_grasp_target(self.tf2_buffer)
-        if grasp_target is None:
-            return TriggerResponse(
-                success=False,
-                message='Failed to find grasp target'
-            )
-
+        # # 2. Scan surface and find grasp target
+        # self.look_at_surface(scan_time_s = 4.0)
+        # grasp_target = self.manipulation_view.get_grasp_target(self.tf2_buffer)
+        # if grasp_target is None:
+        #     return TriggerResponse(
+        #         success=False,
+        #         message='Failed to find grasp target'
+        #     )
+        grasp_target = self.grasp_msg_bridge.from_ros_msg(request.grasp_target)
+        rospy.loginfo("Grasping object")
         # 3. Move to pregrasp pose
+        print("manipulation view",type(self.manipulation_view))
+        self.look_at_surface(scan_time_s = 4.0)
+
         pregrasp_lift_m = self.manipulation_view.get_pregrasp_lift(grasp_target, self.tf2_buffer)
         if self.tool == "tool_stretch_dex_wrist":
             pregrasp_lift_m += 0.02
@@ -200,13 +210,13 @@ class GraspObjectNode(hm.HelloNode):
         pose = {'joint_wrist_yaw': 0.0}
         self.move_to_pose(pose)
 
-        return TriggerResponse(
+        return grasp_manipResponse(
             success=True,
-            message='Completed object grasp!'
+            message=True
         )
 
     def main(self):
-        hm.HelloNode.main(self, 'grasp_object', 'grasp_object', wait_for_first_pointcloud=False)
+        hm.HelloNode.main(self, 'grasp_object_manip', 'grasp_object_manip', wait_for_first_pointcloud=False)
 
         self.debug_directory = rospy.get_param('~debug_directory')
         rospy.loginfo('Using the following directory for debugging files: {0}'.format(self.debug_directory))
@@ -214,8 +224,8 @@ class GraspObjectNode(hm.HelloNode):
 
         self.joint_states_subscriber = rospy.Subscriber('/stretch/joint_states', JointState, self.joint_states_callback)
         
-        # self.trigger_grasp_object_service = rospy.Service('/grasp_object/trigger_grasp_object',
-                                                           Trigger,
+        self.trigger_grasp_object_service = rospy.Service('/grasp_object/manip_grasp_object',
+                                                           grasp_manip,
                                                            self.trigger_grasp_object_callback)
 
         rospy.wait_for_service('/funmap/trigger_reach_until_contact')
@@ -245,7 +255,7 @@ if __name__ == '__main__':
     try:
         parser = ap.ArgumentParser(description='Grasp Object behavior for stretch.')
         args, unknown = parser.parse_known_args()
-        node = GraspObjectNode()
+        node = GraspObjectManipNode()
         node.main()
     except KeyboardInterrupt:
         rospy.loginfo('interrupt received, so shutting down')

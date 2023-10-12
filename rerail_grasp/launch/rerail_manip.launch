@@ -1,0 +1,17 @@
+<launch>
+
+  <arg name="launch_drivers"  default="true"                           doc="whether to launch Stretch, D435i, Lidar, and other drivers" />
+  <arg name="debug_directory" default="$(env HELLO_FLEET_PATH)/debug/" doc="path to directory where debug planning images/logs are stored" />
+  <arg name="dryrun"          default="false"                          doc="whether run perception/planning without actually moving" />
+  <arg name="rviz"            default="false"                           doc="whether to launch Rviz" />
+  <arg name="respeaker"       value="false" />
+
+
+  <!-- GRASP OBJECT MANIPULATION -->
+  <node name="hello_robot_manip" pkg="rerail_grasp" type="hello_robot_manip" output="screen">
+    <param name="debug_directory" type="string" value="$(arg debug_directory)"/>
+    <param name="dryrun" type="bool" value="$(arg dryrun)"/>
+  </node>
+ 
+
+</launch>
