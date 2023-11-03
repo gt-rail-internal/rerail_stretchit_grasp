@@ -59,6 +59,7 @@ class my_node:
         while(self.unfiltered_list is None):
             rospy.sleep(0.1)
         self.target_grasp_pose = None
+        rospy.loginfo("Sending request for grasp pose")
         self.single_grasp_pose_req_pub.publish(request.rank_no)
         while(self.target_grasp_pose is None):
             rospy.sleep(0.1)
