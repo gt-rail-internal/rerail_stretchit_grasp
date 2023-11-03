@@ -1,0 +1,27 @@
+roslaunch stretch_core keyboard_teleop.launch 
+roslaunch grasp_pkg_tests grasp_rosbag.launch # note has hard coded path to bag file. will need to change to run other systems
+roslaunch fetch_grasp_suggestion grasp_suggestion_testing.launch cloud_topic:=/camera/depth/color/points # need to source grasp_ws not grasp3_ws
+roslaunch fetch_grasp_suggestion grasp_suggestion_testing_frontend.launch
+rosservice call rail_segmentation/segment {}
+rostopic pub /test_grasp_suggestion/grasp_object_heuristic std_msgs/Int32 "data: 0"
+rostopic echo /test_grasp_suggestion/pose_to_execute
+rosbag play perception_point_cloud.bag --loop
+
+
+
+
+#version2
+roslaunch grasp_pkg_tests grasp_rosbag.launch
+roslaunch fetch_grasp_suggestion grasp_suggestion_testing.launch cloud_topic:=/camera/depth/color/points
+roslaunch fetch_grasp_suggestion grasp_suggestion_testing_frontend.launch
+rosrun stretch_fetch_grasp_bridge stretch_grasp_filter.py
+rosservice call rail_segmentation/segment {}
+rostopic pub /test_grasp_suggestion/grasp_object_heuristic_all_pose std_msgs/Int32 "data: 0"
+rostopic pub /stretch_grasp/last_pos_req std_msgs/Int16 "data: 0"
+
+
+
+rostopic pub /test_grasp_suggestion/grasp_object std_msgs/Int32 "data: 0"
+rostopic pub /test_grasp_suggestion/grasp_object_agile std_msgs/Int32 "data: 0"
+rostopic pub /test_grasp_suggestion/grasp_object_random std_msgs/Int32 "data: 0"
+rostopic pub /test_grasp_suggestion/grasp_object_heuristic_stretch std_msgs/Int32 "data: 0"

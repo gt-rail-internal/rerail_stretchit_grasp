@@ -1,0 +1,6 @@
+debug: true
+point_cloud_topic: "/camera/depth/color/points"
+min_cluster_size: 200
+max_cluster_size: 10000
+use_color: true
+zones_config: '/home/abivishaq/grasp_ws/src/grasp_pkg_tests/config/segmentation_zones.yaml'

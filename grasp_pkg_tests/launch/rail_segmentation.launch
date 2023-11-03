@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+
+<rosparam command="load" file="$(find grasp_pkg_tests)/config/segmentation_params.yaml" ns="rail_segmentation"/>
+
+<node pkg="rail_segmentation" type="rail_segmentation" name="rail_segmentation" output="screen"/>
+<node pkg="rviz" type="rviz" name="rail_segmentation_rviz" args="-d $(find grasp_pkg_tests)/rviz/rail_segmentation_stretch.rviz"/>
+
+</launch>

@@ -1,0 +1,12 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/abivishaq/stretch_robot_ws/devel/lib/python3/dist-packages",
+        "/home/abivishaq/grasp_ws/devel/lib/python3/dist-packages",
+        "/opt/ros/noetic/lib/python3/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/abivishaq/stretch_robot_ws/devel/lib/python3/dist-packages",
+        "/home/abivishaq/grasp_ws/devel/lib/python3/dist-packages",
+        "/opt/ros/noetic/lib/python3/dist-packages"
+    ]
+}
