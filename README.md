@@ -8,4 +8,12 @@ Contains ROS packages for generating grasp pose for stretch.
 # Running on stretch
 1. launch stretch driver (on robot)
 2. launch stretch camera (on robot)
-3. roslaunch stretch_fetch_grasp_bridge grasp_suggestor.launch
+3.
+```
+roslaunch stretch_fetch_grasp_bridge grasp_suggestor.launch
+```
+4. rqt_service_caller
+```
+rosrun rqt_service_caller rqt_service_caller
+```
+
