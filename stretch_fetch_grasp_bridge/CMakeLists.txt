@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -55,11 +56,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+  FILES
+  StretchGraspPose.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -69,10 +69,14 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   geometry_msgs#   std_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  geometry_msgs#   std_msgs
+)
+
+catkin_package(
+  CATKIN_DEPENDS message_runtime
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -103,12 +107,12 @@ find_package(catkin REQUIRED COMPONENTS
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
-catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES stretch_fetch_grasp_bridge
-#  CATKIN_DEPENDS geometry_msgs roscpp rospy std_msgs
-#  DEPENDS system_lib
-)
+# catkin_package(
+# #  INCLUDE_DIRS include
+# #  LIBRARIES stretch_fetch_grasp_bridge
+# #  CATKIN_DEPENDS geometry_msgs roscpp rospy std_msgs
+# #  DEPENDS system_lib
+# )
 
 ###########
 ## Build ##
@@ -161,7 +165,8 @@ include_directories(
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
-  scripts/stretch_grasp_filter.py
+  scripts/stretch_grasp_filter.py 
+  scripts/stretch_grasp_suggestion.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

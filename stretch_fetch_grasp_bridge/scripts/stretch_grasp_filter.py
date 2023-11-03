@@ -3,7 +3,7 @@
 import rospy
 from geometry_msgs.msg import PoseArray
 from geometry_msgs.msg import PoseStamped
-from std_msgs.msg import Int16
+from std_msgs.msg import Int32, String
 import tf.transformations as tf_transform
 import numpy as np
 
@@ -18,9 +18,10 @@ class stretch_grasp_filter:
         # subscribers and publishers
         self.all_grasp_sub = rospy.Subscriber('/test_grasp_suggestion/all_grasp_poses', PoseArray, self.pose_array_callback)
         self.filter_grasp_pub = rospy.Publisher('/stretch_grasp/filtered_grasp_poses', PoseArray, queue_size=10)
-        self.last_pos_req_sub = rospy.Subscriber('/stretch_grasp/last_pos_req',Int16, self.last_pos_req_sub_callback)
+        self.last_pos_req_sub = rospy.Subscriber('/stretch_grasp/last_pos_req',Int32, self.last_pos_req_sub_callback)
         self.single_grasp_pub = rospy.Publisher('/stretch_grasp/single_grasp_pose', PoseStamped, queue_size=10)
         self.last_pose_array = None
+        self.recovery_pub = rospy.Publisher('/stretch_grasp/recovery', String, queue_size=10)
         # self.stretch_grasp_pose_service = rospy.Service('/stretch_grasp/get_grasp_pose', PoseArray, self.pose_array_callback)
     def debug_pose(self,pose):
         quat = [pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w]
@@ -50,6 +51,7 @@ class stretch_grasp_filter:
             
         else:
             rospy.loginfo("last_pos_req is out of bounds")
+            self.recovery_pub.publish("last_pos_req is out of bounds")
             return
         
 

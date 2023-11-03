@@ -1,0 +1,5 @@
+int64 segment_no
+int64 rank_no
+---
+bool success
+geometry_msgs/PoseStamped grasp_pose
