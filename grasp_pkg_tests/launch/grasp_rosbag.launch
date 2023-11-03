@@ -1,7 +1,8 @@
 <launch>
 
   <!-- Launch rosbag play with loop and topic remapping -->
-  <node name="rosbag_play" pkg="rosbag" type="play" args="--loop /home/abivishaq/perception_multiple_obj_sparse.bag /camera/depth/color/points:=/camera/depth/color/points_recorded /tf:=/tf_recorded" />
+  <!-- <node name="rosbag_play" pkg="rosbag" type="play" args="loop /home/abivishaq/perception_multiple_obj_sparse.bag /camera/depth/color/points:=/camera/depth/color/points_recorded /tf:=/tf_recorded" /> -->
+  <node name="rosbag_play" pkg="rosbag" type="play" args="--loop $(find grasp_pkg_tests)/bag_files/perception_multiple_obj_sparse.bag /camera/depth/color/points:=/camera/depth/color/points_recorded /tf:=/tf_recorded" />
   <!-- <node name="rosbag_play" pkg="rosbag" type="play" args = "/home/abivishaq/perception_bag_3.bag" /> -->
 
   <!-- Launch point_cloud_republisher.py node -->
