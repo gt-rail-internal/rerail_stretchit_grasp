@@ -17,3 +17,12 @@ roslaunch stretch_fetch_grasp_bridge grasp_suggestor.launch
 rosrun rqt_service_caller rqt_service_caller
 ```
 
+The service name is: "stretch_grasp_pose_suggester"
+The inputs to the service message structure is as follows:
+```
+int64 segment_no # the object no. which segemented blob to choose, pls note the order may change each time since segmentation is rerun
+int64 rank_no # the gripper rank no. to return. As above each call resegments and resamples grasps. Thus results will not be consistent with each call.
+---
+bool success # if False probably no filtered grasp was found.
+geometry_msgs/PoseStamped grasp_pose # the grasp pose # kindly note the pose could be inverted. That is upside down. Will fix this in the future. 
+```
