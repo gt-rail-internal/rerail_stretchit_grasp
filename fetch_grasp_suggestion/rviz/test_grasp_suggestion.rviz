@@ -6,6 +6,7 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /Image1
         - /MarkerArray1
         - /Pose1
       Splitter Ratio: 0.5
@@ -27,7 +28,7 @@ Panels:
   - Class: rviz/Time
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: Image
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -71,7 +72,7 @@ Visualization Manager:
       Visual Enabled: true
     - Class: rviz/Image
       Enabled: true
-      Image Topic: /head_camera/rgb/image_raw
+      Image Topic: /camera/color/image_raw
       Max Value: 1
       Median window: 5
       Min Value: 0
@@ -290,7 +291,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 5.624818801879883
+      Distance: 2.631934404373169
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -298,17 +299,17 @@ Visualization Manager:
         Value: false
       Field of View: 0.7853981852531433
       Focal Point:
-        X: 0.5433089733123779
-        Y: 0.02929989993572235
-        Z: 0.7908700108528137
+        X: 0.4119013845920563
+        Y: -0.4347810745239258
+        Z: 0.9719600081443787
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.45479685068130493
+      Pitch: 0.4397968649864197
       Target Frame: <Fixed Frame>
-      Yaw: 0.03361665457487106
+      Yaw: 0.16861668229103088
     Saved: ~
 Window Geometry:
   Displays:
@@ -328,5 +329,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1386
-  X: 221
-  Y: 75
+  X: 680
+  Y: 175
