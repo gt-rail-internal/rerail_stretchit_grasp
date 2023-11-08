@@ -2,3 +2,4 @@ grasp_pkg_tests/bag_files/perception_multiple_obj_sparse.bag
 .vscode/*
 rail_manipulation_msgs/.vscode/c_cpp_properties.json
 rail_manipulation_msgs/.vscode/*
+stretch_fetch_grasp_bridge/debug/*.jpeg
