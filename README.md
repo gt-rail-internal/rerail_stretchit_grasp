@@ -14,6 +14,11 @@ Contains ROS packages for generating grasp pose for stretch.
 # Running on stretch
 1. launch stretch driver (on robot)
 2. launch stretch camera (on robot)
+Alternative to 1 and 2 you can use a ROS bag file:
+```
+roslaunch grasp_pkg_tests grasp_rosbag.launch 
+```
+Ensure ROS bag file is present in the grasp_pkg_tests/bag_files
 3.
 ```
 roslaunch stretch_fetch_grasp_bridge grasp_suggestor.launch
