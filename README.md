@@ -13,13 +13,19 @@ Contains ROS packages for generating grasp pose for stretch.
 6. Need to also pull the rail_agile package. (Will push it to github soon)
 # Running on stretch
 1. launch stretch driver (on robot)
+   ```
+   roslaunch stretch_core stretch_driver.launch
+   ```
 2. launch stretch camera (on robot)
-Alternative to 1 and 2 you can use a ROS bag file:
-```
-roslaunch grasp_pkg_tests grasp_rosbag.launch 
-```
-Ensure ROS bag file is present in the grasp_pkg_tests/bag_files
-3.
+   ```
+   roslaunch stretch_core d435i_high_resolution.launch
+   ```
+   Alternative to 1 and 2 you can use a ROS bag file:
+   ```
+   roslaunch grasp_pkg_tests grasp_rosbag.launch 
+   ```
+   Ensure ROS bag file is present in the grasp_pkg_tests/bag_files
+3. Launch grasping nodes
 ```
 roslaunch stretch_fetch_grasp_bridge grasp_suggestor.launch
 ```
