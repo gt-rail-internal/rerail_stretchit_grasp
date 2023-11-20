@@ -174,6 +174,7 @@ catkin_install_python(PROGRAMS
   scripts/stretch_grasp_filter_v2.py
   scripts/stretch_grasp_suggestion.py
   scripts/segmentation_dummy_node.py
+  scripts/segmentation_node.py
   scripts/task_executor_dummy.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
