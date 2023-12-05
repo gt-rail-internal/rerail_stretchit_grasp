@@ -222,9 +222,7 @@ class SegmentationNode(object):
         bounding_coords = np.array(detic_detection.bounding_box.data)
         print("bounding_coords:")
         print(bounding_coords)
-        center_ooi = np.array([np.mean(np.array([bounding_coords[0],bounding_coords[2]])),np.mean(np.array([bounding_coords[1],bounding_coords[3]]))])
-        print("center_ooi:")
-        print(center_ooi)
+        center_ooi = np.array([np.mean(bounding_coords[0:2]),np.mean(bounding_coords[2:4])])
         # obj_centers = np.array([])
         obj_centers = np.zeros((len(rail_objects.objects),2))
         for i in range(len(rail_objects.objects)):

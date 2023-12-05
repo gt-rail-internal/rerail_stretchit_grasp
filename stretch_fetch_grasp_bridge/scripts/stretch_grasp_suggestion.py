@@ -61,9 +61,9 @@ class my_node:
         rospy.loginfo("Segmentation service returned")
         self.object_index = None
         rospy.loginfo("Waiting for object index")
-        # while(self.object_index is None):
-        #     rospy.sleep(0.1)
-        self.object_index = request.segment_no
+        while(self.object_index is None):
+            rospy.sleep(0.1)
+        #self.object_index = request.segment_no
         self.unfiltered_list = None
         self.grasp_list_req_pub.publish(self.object_index)
         while(self.unfiltered_list is None):

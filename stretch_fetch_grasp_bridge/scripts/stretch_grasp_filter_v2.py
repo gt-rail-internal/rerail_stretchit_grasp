@@ -61,11 +61,12 @@ class stretch_grasp_filter:
 
         resp.grasp_pose.pose = displaced_grasp
         self.single_grasp_pub.publish(resp.grasp_pose)
+        resp.success = True
         # grasp_pose.pose = grasp_list[0].grasp_poses.poses[0]
         return resp
 
     def filter_grasps(self,grasp_list):
-        self.type_of_grasps = rospy.get_param('filtering_type', 'frontal')
+        self.type_of_grasps = rospy.get_param('filtering_type', 'all')
         rospy.loginfo("type_of_grasps is: " + str(self.type_of_grasps))
         rospy.loginfo("Received PoseArray with %d poses.", len(grasp_list.poses))
         if(self.type_of_grasps == 'all'):

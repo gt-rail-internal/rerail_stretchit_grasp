@@ -1,31 +1,27 @@
 #!/usr/bin/env python
 import rospy
-from std_msgs.msg import String, Int32MultiArray,Int32
-
+from std_msgs.msg import String, Int32MultiArray,Int16
+import numpy as np
 from rail_manipulation_msgs.msg import SegmentedObjectList
-from segmentation.msg import masks_classes
-
 import tf2_ros
 import tf2_geometry_msgs
-
-import numpy as np
 
 class rail_detic_bridge:
     def __init__(self):
         rospy.init_node('rail_detic_bridge', anonymous=True)
-        self.detic_seg_sub = rospy.Subscriber('object_det', masks_classes, self.detic_callback)
-        self.rail_seg_sub = rospy.Subscriber('/rail_segmentation/segmented_objects', SegmentedObjectList, self.rail_seg_callback)
-        self.obj_pub = rospy.Publisher('object_index',Int32 , queue_size=10)
-        self.detic_seg_sub
+        self.detic_seg_sub = rospy.Subscriber('detic_segmentation', Int32MultiArray, self.detic_callback)
+        self.rail_seg_sub = rospy.Subscriber('rail_segmentation', SegmentedObjectList, self.rail_seg_callback)
+        self.obj_pub = rospy.Publisher('object_index',Int16 , queue_size=10)
+        self.mask_x_sub
+        self.mask_y_sub
         self.rail_seg_sub
+        self.mask_x = None
+        self.mask_y = None
         self.center_ooi = None # center of object of interest
     def detic_callback(self, data):
         #rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
-        self.bounding_coords = np.array(data.bounding_box.data)
-        print("bounding box:",self.bounding_coords)
-        # raise NotImplementedError
-        self.center_ooi = np.array([np.mean(self.bounding_coords[[1,3]]),np.mean(self.bounding_coords[[0,2]])])
-        print(self.center_ooi)
+        self.bounding_coords = np.array(data.data)
+        self.center_ooi = np.array([np.mean(self.bounding_coords[0:2]),np.mean(self.bounding_coords[2:4])])
     def transform_point_to_frame(self, point, from_frame, to_frame, timeout=rospy.Duration(1.0)):
         """
         Transform a point from one frame to another using tf2_ros.
@@ -79,39 +75,34 @@ class rail_detic_bridge:
 
 
     def rail_seg_callback(self, data):
-        print("Got rail segmentation data::")
-        print("No of objs:", len(data.objects))
-        if(self.center_ooi is None):
-            print("Warning: Have not yet received the DETIC Results. Returning default index")
-            # self.obj_pub.publish(0)
-            return
-        obj_centers = []
-        if(len(data.objects)==0):
-            return
+        obj_centers = np.array([])
         for i in range(len(data.objects)):
             obj = data.objects[i]
             # Trasform the point to the target frame
             point_transformed = self.transform_point_to_frame(obj.centroid, 'base_link', 'camera_color_optical_frame')
             pixel_coords = self.project_to_image_plane(point_transformed.point)
-            print('pixel_coords',pixel_coords)
-            # obj_centers = np.append(np.array(obj_centers, pixel_coords))
-            obj_centers.append(pixel_coords)
+            obj_centers = np.append(obj_centers, pixel_coords)
         # differnce between the center of the object of interest and the center of the rail
-        obj_centers = np.array(obj_centers)
-        print('obj_centers:',obj_centers)
-        print('Center_ooi:',self.center_ooi)
         self.diff = obj_centers - self.center_ooi
-        self.diff = np.square(self.diff)
-        self.err = np.sum(self.diff,axis=1)
-        print('self.diff',self.diff.shape)
-        print('self.err',self.err.shape)
-        closest_index = np.argmin(np.abs(self.err))
-        print("The object object index:",closest_index)
+        closest_index = np.argmin(np.abs(self.diff))
         self.obj_pub.publish(closest_index)
 
 def callback(data):
     rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
     
-if __name__ == '__main__':
-    node = rail_detic_bridge()
+def listener():
+
+    # In ROS, nodes are uniquely named. If two nodes with the same
+    # name are launched, the previous one is kicked off. The
+    # anonymous=True flag means that rospy will choose a unique
+    # name for our 'listener' node so that multiple listeners can
+    # run simultaneously.
+    rospy.init_node('listener', anonymous=True)
+
+    rospy.Subscriber("chatter", String, callback)
+
+    # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
+
+if __name__ == '__main__':
+    listener()

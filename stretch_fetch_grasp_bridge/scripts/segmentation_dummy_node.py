@@ -24,7 +24,12 @@ class SegmentationDummyNode(object):
 
         # Add the segmented objects to the response
         # resp.segmented_objects = [YourMessageType()]
+        if(len(objects.segmented_objects.objects) == 0):
+            # print("no objects found")
+            resp.success = False
+            return resp
         resp.segmented_point_cloud = objects.segmented_objects.objects[0].point_cloud
+        resp.success = True
         # Return the response
         return resp
 

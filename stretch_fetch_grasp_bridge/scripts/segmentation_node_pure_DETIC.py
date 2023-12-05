@@ -15,13 +15,10 @@ import tf2_geometry_msgs
 from sensor_msgs.msg import CameraInfo, PointCloud2
 import sensor_msgs.point_cloud2 as pc2
 from std_msgs.msg import Header
-import cv2
-from cv_bridge import CvBridge
 
 class SegmentationNode(object):
     def __init__(self):
         rospy.init_node('segmentation_node')
-        self.bridge = CvBridge() 
 
         # creating subscriber
         self.img_sub = rospy.Subscriber('/camera/color/image_raw', Image, self.img_callback)
@@ -129,73 +126,73 @@ class SegmentationNode(object):
         print(segmented_points)
         print(type(segmented_cloud_msg))
         return segmented_cloud_msg
-    # def segment_point_cloud(self,segmented_pixels, point_cloud_msg, camera_info_msg):
-    #     """
-    #     Segments a point cloud based on segmented pixel coordinates, camera information, and includes RGB data.
+    def segment_point_cloud(self,segmented_pixels, point_cloud_msg, camera_info_msg):
+        """
+        Segments a point cloud based on segmented pixel coordinates, camera information, and includes RGB data.
 
-    #     :param segmented_pixels: List of (x, y) tuples representing segmented pixel coordinates.
-    #     :param point_cloud_msg: ROS message of type PointCloud2.
-    #     :param camera_info_msg: ROS message of type CameraInfo.
-    #     :return: Segmented point cloud as a PointCloud2 message with RGB data.
-    #     """
-    #     # Check if segmented pixels list is empty
-    #     if not segmented_pixels:
-    #         print("No segmented pixels provided.")
-    #         return None
+        :param segmented_pixels: List of (x, y) tuples representing segmented pixel coordinates.
+        :param point_cloud_msg: ROS message of type PointCloud2.
+        :param camera_info_msg: ROS message of type CameraInfo.
+        :return: Segmented point cloud as a PointCloud2 message with RGB data.
+        """
+        # Check if segmented pixels list is empty
+        if not segmented_pixels:
+            print("No segmented pixels provided.")
+            return None
 
-    #     # Convert camera information ROS message to a usable format
-    #     K = np.array(camera_info_msg.K).reshape(3, 3)
+        # Convert camera information ROS message to a usable format
+        K = np.array(camera_info_msg.K).reshape(3, 3)
 
-    #     # Convert the PointCloud2 message to a list of points with RGB data
-    #     cloud_points = pc2.read_points(point_cloud_msg, skip_nans=True, field_names=("x", "y", "z", "rgb"))
+        # Convert the PointCloud2 message to a list of points with RGB data
+        cloud_points = pc2.read_points(point_cloud_msg, skip_nans=True, field_names=("x", "y", "z", "rgb"))
 
-    #     print("cloud_points:",cloud_points)
-    #     # Project pixel coordinates to 3D space and segment the point cloud with RGB data
-    #     segmented_points = []
-    #     for (u, v) in segmented_pixels:
-    #         # Convert to normalized device coordinates
-    #         u_n = (u - K[0, 2]) / K[0, 0]
-    #         v_n = (v - K[1, 2]) / K[1, 1]
+        print("cloud_points:",cloud_points)
+        # Project pixel coordinates to 3D space and segment the point cloud with RGB data
+        segmented_points = []
+        for (u, v) in segmented_pixels:
+            # Convert to normalized device coordinates
+            u_n = (u - K[0, 2]) / K[0, 0]
+            v_n = (v - K[1, 2]) / K[1, 1]
 
-    #         found_match = False
-    #         for point in cloud_points:
-    #             # print('hi')
-    #             x, y, z, rgb = point
-    #             # Assuming a small threshold for matching
-    #             threshold = 0.3  # Adjust as needed
-    #             if abs(x / z - u_n) < threshold and abs(y / z - v_n) < threshold:
-    #                 # print('hi')
-    #                 segmented_points.append([x, y, z, rgb])
-    #                 found_match = True
-    #                 break
-    #         if not found_match:
-    #             pass
-    #             #print(f"No match found for pixel: ({u}, {v})")
+            found_match = False
+            for point in cloud_points:
+                # print('hi')
+                x, y, z, rgb = point
+                # Assuming a small threshold for matching
+                threshold = 0.01  # Adjust as needed
+                if abs(x / z - u_n) < threshold and abs(y / z - v_n) < threshold:
+                    # print('hi')
+                    segmented_points.append([x, y, z, rgb])
+                    found_match = True
+                    break
+            if not found_match:
+                pass
+                #print(f"No match found for pixel: ({u}, {v})")
 
-    #     print('length of segmented points:',len(segmented_points))
-    #     print('lenght of segmented_pixels:',len(segmented_pixels))
-    #     if not segmented_points:
-    #         print("Segmented point cloud is empty.")
-    #         return None
+        print('length of segmented points:',len(segmented_points))
+        print('lenght of segmented_pixels:',len(segmented_pixels))
+        if not segmented_points:
+            print("Segmented point cloud is empty.")
+            return None
 
-    #     # Create a new PointCloud2 message for the segmented points with RGB data
-    #     header = Header()
-    #     header.stamp = rospy.Time.now()
-    #     header.frame_id = point_cloud_msg.header.frame_id
+        # Create a new PointCloud2 message for the segmented points with RGB data
+        header = Header()
+        header.stamp = rospy.Time.now()
+        header.frame_id = point_cloud_msg.header.frame_id
 
-    #     fields = [pc2.PointField(name=n, offset=i*4, datatype=pc2.PointField.FLOAT32, count=1)
-    #             for i, n in enumerate('xyz')]
+        fields = [pc2.PointField(name=n, offset=i*4, datatype=pc2.PointField.FLOAT32, count=1)
+                for i, n in enumerate('xyz')]
     
-    #     fields.append(pc2.PointField(name='rgb', offset=12, datatype=pc2.PointField.UINT32, count=1))
-    #     print(fields)
-    #     print("## Original fields ##")
-    #     print(point_cloud_msg.fields)
-    #     fields = point_cloud_msg.fields
-    #     print("segmented_points[:10]:",segmented_points[0])
-    #     segmented_cloud_msg = pc2.create_cloud(header, fields, segmented_points)
-    #     print(segmented_cloud_msg)
-    #     self.segmented_cloud_pub.publish(segmented_cloud_msg)
-    #     return segmented_cloud_msg
+        fields.append(pc2.PointField(name='rgb', offset=12, datatype=pc2.PointField.UINT32, count=1))
+        print(fields)
+        print("## Original fields ##")
+        print(point_cloud_msg.fields)
+        fields = point_cloud_msg.fields
+        print("segmented_points[:10]:",segmented_points[0])
+        segmented_cloud_msg = pc2.create_cloud(header, fields, segmented_points)
+        print(segmented_cloud_msg)
+        self.segmented_cloud_pub.publish(segmented_cloud_msg)
+        return segmented_cloud_msg
     def project_to_image_plane(self, point_3d, fx=905.608154296875, fy=903.4915771484375, cx=644.8792114257812, cy=361.4921569824219):
         """
         Project a 3D point in the camera frame to 2D pixel coordinates.
@@ -222,60 +219,24 @@ class SegmentationNode(object):
         bounding_coords = np.array(detic_detection.bounding_box.data)
         print("bounding_coords:")
         print(bounding_coords)
-        center_ooi = np.array([np.mean(np.array([bounding_coords[0],bounding_coords[2]])),np.mean(np.array([bounding_coords[1],bounding_coords[3]]))])
-        print("center_ooi:")
-        print(center_ooi)
-        # obj_centers = np.array([])
-        obj_centers = np.zeros((len(rail_objects.objects),2))
+        center_ooi = np.array([np.mean(bounding_coords[0:2]),np.mean(bounding_coords[2:4])])
+        obj_centers = np.array([])
         for i in range(len(rail_objects.objects)):
             obj = rail_objects.objects[i]
             # Trasform the point to the target frame
             point_transformed = self.transform_point_to_frame(obj.centroid, 'base_link', 'camera_color_optical_frame')
             pixel_coords = self.project_to_image_plane(point_transformed.point)
-            obj_centers[i,:] = pixel_coords
-            print("obj_centers_shape:")
-            print(obj_centers.shape)
+            obj_centers = np.append(obj_centers, pixel_coords)
         # differnce between the center of the object of interest and the center of the rail
-        # obj_centers = obj_centers[:,np.newaxis]
-        # center_ooi = center_ooi[np.newaxis,:]
-        self.diff = obj_centers - center_ooi[np.newaxis,:]
-        print("center_ooi shape:")
-        print(center_ooi.shape)
-        print("diff shape:")
-        print(self.diff.shape)
+        obj_centers = obj_centers[:,np.newaxis]
+        self.diff = obj_centers - center_ooi
         self.diff = np.abs(self.diff)
-        print("diff_abs:")
-        print(self.diff)
-        self.diff = np.sum(self.diff,axis=1)
-        print("diff:")
+        self.diff = np.sum(self.diff,axis=0)
         print(self.diff.shape)
-        self.debug_img(center_ooi,obj_centers)
-        closest_index = np.argmin(self.diff)
+        closest_index = np.argmin(np.abs(self.diff))
         return closest_index
-    def debug_img(self,coi,obj_centers):
-        cv_img = self.bridge.imgmsg_to_cv2(self.img,"bgr8")
-        
-        cv2.imwrite("/home/hello-robot/cv_img.png",cv_img)
-        # img = cv2.rotate(cv_img,cv2.ROTATE_90_CLOCKWISE)
-        # img = cv2.flip(img,1)
-        img = cv_img
-        # center of interest
-        img = cv2.circle(img,(int(coi[0]),int(coi[1])), 5, (0,0,255), -1)
-        # object centers
-        print("obj_centers:")
-        print(obj_centers)
-        print("obj_centers_shape:   ")
-        print(obj_centers.shape)
-        for i in range(len(obj_centers)):
-            img = cv2.circle(img,(int(obj_centers[i][0]),int(obj_centers[i][1])), 5, (0,255,0), -1)
-        cv2.imwrite("/home/hello-robot/debug_img.png",img)
-        print("saved debug image")
-
-
-
         
     def segmentation_service_callback(self, req):
-        rospy.loginfo("RAIL seg + DETIC segmentation ")
         # Create the response
         resp = StretchSegmentationResponse()
         # Call the service
@@ -288,24 +249,22 @@ class SegmentationNode(object):
         # Call the service
         rospy.loginfo("Calling detic service")
         detic_detection = self.detic_client(req.object_name, self.img)
-        rospy.loginfo("Got Detic Detection")
-        # pixels = []
-        # print("len of detic_detection.masks_x.data:",len(detic_detection.masks_x.data))
+        pixels = []
+        print("len of detic_detection.masks_x.data:",len(detic_detection.masks_x.data))
         # raise NotImplementedError
-        # for x,y in zip(detic_detection.masks_x.data, detic_detection.masks_y.data):
-        #     pixels.append((y,x))
-        # segmented_cloud = self.segment_point_cloud(pixels,self.point_cloud,self.camera_info)
+        for x,y in zip(detic_detection.masks_x.data, detic_detection.masks_y.data):
+            pixels.append((y,x))
+        segmented_cloud = self.segment_point_cloud_v1(pixels,self.point_cloud,self.camera_info)
         # print(objects.objects[0].point_cloud)
         rospy.loginfo("Got response from detic ")
-        object_index = self.find_object_index(objects,detic_detection)
-        rospy.loginfo("object_index:"+str(object_index))
-        print("#"*50)
+        # object_index = self.find_object_index(objects,detic_detection)
 
 
         # Add the segmented objects to the response
         # resp.segmented_objects = [YourMessageType()]
-        resp.segmented_point_cloud =  objects.objects[object_index].point_cloud #segmented_cloud
-        resp.success = True
+        # resp.segmented_point_cloud =  objects.objects[object_index].point_cloud #segmented_cloud
+        resp.segmented_point_cloud =  segmented_cloud
+
         # Return the response
         return resp
 

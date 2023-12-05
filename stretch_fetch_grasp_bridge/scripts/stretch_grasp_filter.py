@@ -55,9 +55,11 @@ class stretch_grasp_filter:
             single_pose.pose = self.last_pose_array.poses[data.data]
             # self.debug_pose_print(single_pose.pose)
             aligned_pose = self.align_new_pose_frame(single_pose) # aligns the pose frame to the base_link frame's z axis and maintains the antipodal points.
-            debug_pose = self.displce_pose([0.03,0,0],aligned_pose)
-            self.single_grasp_pub.publish(aligned_pose)
-            self.debug_grasp_pub.publish(debug_pose)
+            # displaced_pose = self.displce_pose([0.035,0,0],aligned_pose)
+            displaced_pose = self.displce_pose([0.0,0,0],aligned_pose)
+
+            self.single_grasp_pub.publish(displaced_pose)
+            self.debug_grasp_pub.publish(aligned_pose)
             
         else:
             rospy.loginfo("last_pos_req is out of bounds")
