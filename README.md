@@ -1,9 +1,9 @@
 # rerail_stretchit_grasp
-Contains ROS packages for generating grasp pose for stretch. 
-# setup
+Contains ROS packages for generating grasp pose for stretch given a point cloud of the object of interest.
+# Setup
 Incase of any issues refer to Notes below.
 1. Clone Repo to a your workspace
-2. clone rail_agile # will add this package to the repo
+2. Clone rail_agile # will add this package to the repo
    ```
    cd rerail_stretchit_grasp
    git clone https://github.com/GT-RAIL/rail_agile.git
@@ -11,7 +11,7 @@ Incase of any issues refer to Notes below.
 4. catkin_make
 5. (optional: place the rosbag file to  "$(find grasp_pkg_tests)/bag_files" and current expected name is "perception_multiple_obj_sparse.bag." Can modify bag file details in "rerail_stretchit_grasp/grasp_pkg_tests/launch/grasp_rosbag.launch.")
 6. Setup a ros network with stretch  (if not using bag files and not runnning everything on the robot)
-7. Install the fetch_grasp_suggestin dependencies
+7. Install the fetch_grasp_suggestion dependencies
    ```
    sudo apt-get install python-matplotlib
    pip install treeinterpreter
@@ -22,15 +22,23 @@ To run the required nodes launch:
    roslaunch stretch_fetch_grasp_bridge grasp_modular.launch
    ```
 
-Use the "/stretch_grasp_pose_suggester" service. The service message type is as follows.  
+Use the "/stretch_grasp_pose_suggester" service. The service message type is StretchGraspPosev2.srv which is defined as follows:  
 ```
-sensor_msgs/PointCloud2 point_cloud # segmented for the object of interest
+sensor_msgs/PointCloud2 point_cloud # segmented point cloud for the object of interest
 ---
 bool success
-geometry_msgs/PoseStamped grasp_pose
+geometry_msgs/PoseStamped grasp_pose 
 ```
 The point cloud is the segmented point cloud of the object of interest, not the entire point cloud. 
 For task executor: this should be the point cloud returned from the rerail_segmentation.
+# Detailed node and script documentation
+![Node diagram](docs/rerail_stretch_it_grasp_block_diagram.svg)
+For details in the derail-fetchit node refer [here](https://github.com/gt-rail-internal/derail-fetchit/tree/dev/fetch_grasp_suggestion).
+The main node in this package is the stretch_grasp_filter.py. It performs 3 main tasks on the grasp list generated from "fetch grasp suggestion":
+1. Filters grasp
+2. Aligns grasp for Stretch
+3. displaces grasp
+
 # Testing on stretch
 1. launch stretch driver (on robot)
    ```
