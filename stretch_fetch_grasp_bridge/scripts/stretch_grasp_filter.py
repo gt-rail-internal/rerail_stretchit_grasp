@@ -15,16 +15,15 @@ class StretchGraspFilter:
         rospy.init_node('stretch_grasp_filter', anonymous=True)
         
         
-        # configs
-        self.filter_angle_buffer = rospy.get_param('/stretch_grasp/filter_angle_buffer', 'all') #10 # (in degrees) the buffer around the filter_angle
-
         # params
+        self.filter_angle_buffer = rospy.get_param('/stretch_grasp/filter_angle_buffer', 10) #10 # (in degrees) the buffer around the filter_angle
+        self.displace_distance = rospy.get_param('/stretch_grasp/displace_distance', 0.03) #0.03 # (in meters) the distance to displace the grasp along x-axis of the grasp frame
         self.type_of_grasps = rospy.get_param('/stretch_grasp/filtering_type', 'all')
-        # possible values:
-        ## "frontal": grasps with the gripper pointing parallel to the ground plane
-        ## "top_down": grasps with the gripper pointing directly down
-        ## "lateral": grasps that have the antipodal point in a line parallel to the ground plane.
-        ## "all": all grasps without any filtering
+        #        possible values:
+        #           "frontal": grasps with the gripper pointing parallel to the ground plane
+        #           "top_down": grasps with the gripper pointing directly down
+        #           "lateral": grasps that have the antipodal point in a line parallel to the ground plane.
+        #           "all": all grasps without any filtering
         
         
         # Publishers
@@ -35,10 +34,10 @@ class StretchGraspFilter:
         # Services
         ## server
         self.stretch_grasp_service = rospy.Service('/stretch_grasp_pose_suggester', StretchGraspPosev2, self.stretch_grasp_service_callback)
-        rospy.loginfo("Waiting for fetch suggestion service")
-        rospy.wait_for_service('/suggester/suggest_grasps')
 
         ## client
+        rospy.loginfo("Waiting for fetch suggestion service")
+        rospy.wait_for_service('/suggester/suggest_grasps')
         self.fetch_grasp_client = rospy.ServiceProxy('/suggester/suggest_grasps', SuggestGrasps)
         rospy.loginfo("Connected to fetch suggestion service")
         
@@ -54,7 +53,10 @@ class StretchGraspFilter:
         Returns:
         - A StretchGraspPosev2Response message type containing the pose of the best grasp.
         '''
+        
         rospy.logdebug("Received grasp request")
+        # updating params
+        self.displace_distance = rospy.get_param('/stretch_grasp/displace_distance', 0.03) #0.03 # (in meters) the distance to displace the grasp along x-axis of the grasp frame
         
         # Fetch Grasp
         fetch_request = SuggestGraspsRequest()
@@ -68,7 +70,7 @@ class StretchGraspFilter:
         
         # Transform Grasp for viable Stretch Grasp
         aligned_grasp = self.align_new_pose_frame(selected_grasp)
-        displaced_grasp = self.displace_pose([0.03,0.0,0.0],aligned_grasp)
+        displaced_grasp = self.displace_pose([self.displace_distance,0.0,0.0],aligned_grasp)
 
 
         resp = StretchGraspPosev2Response()
@@ -94,6 +96,8 @@ class StretchGraspFilter:
         - A PoseArray message type containing the filtered grasps.
         """
         self.type_of_grasps = rospy.get_param('filtering_type', 'all')
+        self.filter_angle_buffer = rospy.get_param('/stretch_grasp/filter_angle_buffer', 10) #10 # (in degrees) the buffer around the filter_angle
+
         rospy.logdebug("type_of_grasps is: " + str(self.type_of_grasps))
         rospy.logdebug("Received PoseArray with %d poses.", len(grasp_list.poses))
         if(self.type_of_grasps == 'all'):
