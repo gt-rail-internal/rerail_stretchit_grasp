@@ -9,6 +9,7 @@ project(stretch_fetch_grasp_bridge)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
+  sensor_msgs
   roscpp
   rospy
   std_msgs
@@ -59,6 +60,8 @@ find_package(catkin REQUIRED COMPONENTS
 add_service_files(
   FILES
   StretchGraspPose.srv
+  StretchGraspPosev2.srv
+  StretchSegmentation.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -71,7 +74,9 @@ add_service_files(
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
-  geometry_msgs#   std_msgs
+  geometry_msgs
+  sensor_msgs
+  #   std_msgs
 )
 
 catkin_package(
@@ -166,7 +171,11 @@ include_directories(
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
   scripts/stretch_grasp_filter.py 
+  scripts/stretch_grasp_filter_v2.py
   scripts/stretch_grasp_suggestion.py
+  scripts/segmentation_dummy_node.py
+  scripts/segmentation_node.py
+  scripts/task_executor_dummy.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

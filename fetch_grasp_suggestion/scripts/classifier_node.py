@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # ROS
 from geometry_msgs.msg import PoseArray

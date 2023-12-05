@@ -26,8 +26,13 @@ class my_node:
         self.grasp_unfiltered_list_sub = rospy.Subscriber('/test_grasp_suggestion/all_grasp_poses', PoseArray, self.grasp_unfiltered_list_callback)
         self.recovery_sub = rospy.Subscriber('/stretch_grasp/recovery', String, self.recovery_callback)
         
+        self.object_index_sub = rospy.Subscriber('/object_index', Int32, self.object_index_callback)
+
         self.target_grasp_pose = None
         self.unfiltered_list = None
+        self.object_index = None
+    def object_index_callback(self,msg):
+        self.object_index = msg.data
     def recovery_callback(self,msg):
         self.target_grasp_pose = PoseStamped()
         self.response.success = False
@@ -54,8 +59,13 @@ class my_node:
         rospy.loginfo("Calling segmentation service")
         res = self.segmentation_client()
         rospy.loginfo("Segmentation service returned")
+        self.object_index = None
+        rospy.loginfo("Waiting for object index")
+        while(self.object_index is None):
+            rospy.sleep(0.1)
+        #self.object_index = request.segment_no
         self.unfiltered_list = None
-        self.grasp_list_req_pub.publish(request.segment_no)
+        self.grasp_list_req_pub.publish(self.object_index)
         while(self.unfiltered_list is None):
             rospy.sleep(0.1)
         self.target_grasp_pose = None

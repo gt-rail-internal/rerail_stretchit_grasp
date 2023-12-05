@@ -1,0 +1,4 @@
+string object_name
+---
+bool success
+sensor_msgs/PointCloud2 segmented_point_cloud
