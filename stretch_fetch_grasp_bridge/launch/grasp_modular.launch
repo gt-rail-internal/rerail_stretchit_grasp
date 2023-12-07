@@ -25,6 +25,6 @@
     <include file="$(find fetch_grasp_suggestion)/launch/grasp_suggestion_testing_frontend.launch"/>
 
     <!-- Run stretch_grasp_filter.py -->
-    <node name="stretch_grasp" pkg="stretch_fetch_grasp_bridge" type="stretch_grasp_filter_v2.py" output="screen"/>
+    <node name="stretch_grasp" pkg="stretch_fetch_grasp_bridge" type="stretch_grasp_filter.py" output="screen"/>
 
 </launch>
