@@ -1,21 +1,17 @@
 # Rerail_Stretchit_Grasp
 Contains ROS packages for generating grasp pose for stretch given a segmented point cloud of the object of interest.
 # Setup
-Incase of any issues refer to [Notes](#notes).
-1. Clone Repo to a your workspace
-2. Clone rail_agile # will add this package to the repo
-   ```
-   cd rerail_stretchit_grasp
-   git clone https://github.com/GT-RAIL/rail_agile.git
-   ```
-4. catkin_make
-5. (optional: place the rosbag file to  "$(find grasp_pkg_tests)/bag_files" and current expected name is "perception_multiple_obj_sparse.bag." Can modify bag file details in "rerail_stretchit_grasp/grasp_pkg_tests/launch/grasp_rosbag.launch.")
-6. Setup a ros network with stretch  (if not using bag files and not runnning everything on the robot)
-7. Install the fetch_grasp_suggestion dependencies
+In case of any issues refer to [Notes](#notes).
+1. Install the fetch_grasp_suggestion dependencies
    ```
    sudo apt-get install python-matplotlib
    pip install treeinterpreter
+   pip install -U scikit-learn==0.18.1 
    ```
+2. Clone the repo to your workspace.
+3. Build your workspace using `catkin_make`
+4. (optional: place the rosbag file to  `$(find grasp_pkg_tests)/bag_files` and current expected name is `perception_multiple_obj_sparse.bag`. Can modify bag file details in `rerail_stretchit_grasp/grasp_pkg_tests/launch/grasp_rosbag.launch.` ROS bag should contain the camera and point cloud related topics and tf. (Bag file is available on SnowPiecer))
+5. Setup a ROS network with Stretch  (if not using bag files and not runnning everything on the robot) 
 # Interfacing with the grasping module (For Task exector)
 To run the required nodes launch:
    ```
@@ -85,8 +81,11 @@ new_aligned_y_axis = new_aligned_z_axis X new_aligned_x_axis
 ```
 The new aligned grasp aims maintain the antipodal points close to the suggested grasp. 
 ## Displace grasp
-Fetch has a parallel jaw gripper while Stretch has to 2 suction cups on the gripper end. One issue was that ciruclar objects like the can would slip. Diplacing the gripper pose by a few cm along the x-axis of the gripper helps grasp the object better. Althogh this could lead to worse perfomance when anitpodal points need to be preserved such as picking up a bowl. The amount of displacement can be set by the rosparam called "# TODO". Default value for the displacement is 0.03 meters.  
-# Testing on stretch
+Fetch has a parallel jaw gripper while Stretch has to 2 suction cups on the gripper end. One issue was that ciruclar objects like the can would slip. Displacing the gripper pose by a few cm along the x-axis of the gripper helps grasp the object better. Althogh this could lead to worse perfomance when anitpodal points need to be preserved such as picking up a bowl. The amount of displacement can be set by the rosparam called `/stretch_grasp/displace_distance`. Default value for the displacement is 0.03 meters.  
+# Testing
+Note: Current testing instructions work for branch V0. But V0 does not have complete parameter implementation. TODO: create testing for cleaned up code.
+## Testing on stretch
+
 1. launch stretch driver (on robot)
    ```
    roslaunch stretch_core stretch_driver.launch
@@ -110,8 +109,8 @@ Fetch has a parallel jaw gripper while Stretch has to 2 suction cups on the grip
 This execution will calculate the grasp pose of the first indexed object by rail segmentation and publish it to the topic called "/stretch_grasp/single_grasp_pose".
 
 
-# Testing with ROS bag
-For easy testing you could use a rosbag instead of runnning on the robot. The step to run using rosbag are as follows:
+## Testing with ROS bag
+For easy testing you could use a rosbag instead of runnning on the robot. Refer to [setup](#setup) regarding bag file location.The step to run using rosbag are as follows:
 1. Launch the rosbag
    ```
    roslaunch grasp_pkg_tests grasp_rosbag.launch 
