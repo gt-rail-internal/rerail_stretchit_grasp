@@ -73,15 +73,16 @@ These filter grasps that have the antipodal point that are parallel to the groun
 There is no filtering. All the grasps from Fetch are accepted. 
 
 ## Align grasps
-The stretch gripper can only yaw. Since it has only 1 DOF the 6DOF gripper pose Fetch cannot be directly use. The filtering helps filter viable grasps but the grasp may need to be rotated to before giving it to the manipulation node. The aligned graps is generated using the following logic.
+The stretch gripper can only yaw. Since it has only 4DOF, the 6DOF gripper pose Fetch cannot be directly used. The filtering helps filter viable grasps but the grasp may need to be rotated to before giving it to the manipulation node. The aligned graps is generated using the following logic.
 ```
 new_aligned_z_axis = [0,0,1] # this is fixed
 new_aligned_x_axis = orignal_y_axis X new_aligned_z_axis 
 new_aligned_y_axis = new_aligned_z_axis X new_aligned_x_axis
+Note: A X B is the crosproduct of A and B.
 ```
 The new aligned grasp aims maintain the antipodal points close to the suggested grasp. 
 ## Displace grasp
-Fetch has a parallel jaw gripper while Stretch has to 2 suction cups on the gripper end. One issue was that ciruclar objects like the can would slip. Displacing the gripper pose by a few cm along the x-axis of the gripper helps grasp the object better. Althogh this could lead to worse perfomance when anitpodal points need to be preserved such as picking up a bowl. The amount of displacement can be set by the rosparam called `/stretch_grasp/displace_distance`. Default value for the displacement is 0.03 meters.  
+Fetch has a parallel jaw gripper while Stretch has to 2 suction cups on the gripper end. One issue was that ciruclar objects like the can would slip. Displacing the gripper pose by a few cm along the x-axis of the gripper helps grasp the object better. Although this could lead to worse perfomance when antipodal points need to be preserved such as picking up a bowl. The amount of displacement can be set by the rosparam called `/stretch_grasp/displace_distance`. Default value for the displacement is 0.03 meters.  
 # Testing
 Note: Current testing instructions work for branch V0. But V0 does not have complete parameter implementation. TODO: create testing for cleaned up code.
 ## Testing on stretch
