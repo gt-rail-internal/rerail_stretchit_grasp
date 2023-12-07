@@ -169,13 +169,8 @@ include_directories(
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-catkin_install_python(PROGRAMS
-  scripts/stretch_grasp_filter.py 
-  scripts/stretch_grasp_filter_v2.py
-  scripts/stretch_grasp_suggestion.py
-  scripts/segmentation_dummy_node.py
-  scripts/segmentation_node.py
-  scripts/task_executor_dummy.py
+catkin_install_python(PROGRAMS 
+  scripts/stretch_grasp_filter.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
