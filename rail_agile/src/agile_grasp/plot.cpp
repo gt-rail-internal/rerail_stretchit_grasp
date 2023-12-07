@@ -1,4 +1,5 @@
 #include <agile_grasp/plot.h>
+#include <boost/thread/thread.hpp>
 
 
 void Plot::plotHands(const std::vector<GraspHypothesis>& hand_list,
